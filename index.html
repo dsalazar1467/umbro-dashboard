@@ -381,28 +381,54 @@ function renderTable() {
   }).join('');
 }
 
+const THUMBNAILS = {
+  "Equipamientos Express": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/585397861_25303077285990611_2783112460538062945_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=ZnroCyhSif4Q7kNvwEkKiKh&_nc_oc=AdrRmUCyHal6RwHt4rvsEJR5CfupRn5pcBXeL8z2_F8WWSH73eOvRu4AkoeNr79OCLY&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfycFDlSpZGdubpJk3zOZUEi-qfGnZ3xS-PRg4CmnCloOA&oe=69D0E7D8",
+  "Equipamientos Personalizados": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t45.1600-4/585841376_25303210892643917_956863168651620532_n.jpg?_nc_cat=106&ccb=1-7&_nc_ohc=CXS8iI3Jw0IQ7kNvwHktm_S&_nc_oc=Adr0Evu6B35EPBz0u1H3zcda9pMFXWhWDJiugkYpjBMsVeCoODwXtbsGW-jm5QRFcP4&_nc_zt=1&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_AfzJQhcFi-H64erJZnW-XCivXoFLkzgcr9kyAKTWNid0Zw&oe=69D0F2A6",
+  "Equipamientos Express -": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/585397861_25303077285990611_2783112460538062945_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=ZnroCyhSif4Q7kNvwEkKiKh&_nc_oc=AdrRmUCyHal6RwHt4rvsEJR5CfupRn5pcBXeL8z2_F8WWSH73eOvRu4AkoeNr79OCLY&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfzN_Nt1xQf_GeeVx_41tcrDOJEiLdF2946nRJzqrEBfFQ&oe=69D0E7D8",
+  "Video 01": "https://scontent.fmvd4-1.fna.fbcdn.net/v/t15.5256-10/600549793_1566385797981521_4518785426530360902_n.jpg?_nc_cat=110&ccb=1-7&_nc_ohc=DtJNGjO91mwQ7kNvwFlmVLN&_nc_oc=AdpI6uX55VFYnjcV66uRCEYUyRdJg9e19SoScIr5ymh6BO9tJ4J3mZ8JJphtSPYjItI&_nc_zt=23&_nc_ht=scontent.fmvd4-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfxTYvimRZFr8MhxN2Z0uAnJojFXhvi_rZswRV1s8myscA&oe=69D10767",
+  "Video 02": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t15.5256-10/596044005_1192611589728405_3279531504336850115_n.jpg?_nc_cat=106&ccb=1-7&_nc_ohc=osDolEFGuEoQ7kNvwFgg1x8&_nc_oc=AdpbNo96yOthYNbavh2_K9-pMEbZl6gvNWljcrLsVgEqUAJxLG5x0wbVKK8x1Aophi8&_nc_zt=23&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_Afxaep-b53Z0v5eP2noTR6OOBObgrvnfcfiqB9u54dJJJQ&oe=69D0E9FF",
+  "Pauta 01": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/612650649_25689989707299365_3661169112197766350_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=vQXqTXwsbZoQ7kNvwHtA6sr&_nc_oc=AdopKEXz_HjJNqxb3DREIo6upkvd170CJ6DjUmG1R53fDBJAOQ3ovF_vn3-a6B7MdWM&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfxHkq3_ZJePjRtsR5tlla5Tb3-Wf8EqKc0bXz-Ih_qH2g&oe=69D0E96F",
+  "Pauta 02": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/610951454_25690023910629278_3960263552087470076_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=ks2tVWxo41wQ7kNvwFm7HtJ&_nc_oc=AdodAsqTcCb5hF-NEdWuWcyjJfJ80kbsFT5WVrn-Yq1ZWJW1gBOCF538p_96qwKBQ4M&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfydVREpaYSxam_yvbAexSVe-jnu_Yhqda1mfs64dieWQA&oe=69D10A1A",
+  "Pauta 03": "https://scontent.fmvd1-1.fna.fbcdn.net/v/t15.5256-10/611204487_1308453387978694_4992649934029329098_n.jpg?_nc_cat=103&ccb=1-7&_nc_ohc=yimeNOPnSvMQ7kNvwGFscb6&_nc_oc=Adr3bm3538VhmZs8M1A2sDup-wu7iit0ebmU6dG9nz5YfA_hZ3Sw6sALINqS6UQFdwM&_nc_zt=23&_nc_ht=scontent.fmvd1-1.fna&edm=AOgd6ZUEAAAA&oh=00_Afy33XbE0hr4zGZe6MjrJT87uz_yDIZZ-fOL7d_M4H68ng&oe=69D1083C",
+  "Pauta 04": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t15.5256-10/611333940_682037001542083_2968562647689706255_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=vpmejq0UzLcQ7kNvwFEfmhB&_nc_oc=Adq9D4U34xmQoG0LbQ4fw6zMSbDNpPhIOg5uHn0AwXNOkOy-rrbYqK_R2IEicse5GR4&_nc_zt=23&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfyZvPsuZ4AUuBS0hgIpGkSJ5k6cVsEGQo08aWn4P4dREw&oe=69D0EB50",
+  "Anuncio 01": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/612650649_25689989707299365_3661169112197766350_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=vQXqTXwsbZoQ7kNvwHtA6sr&_nc_oc=AdopKEXz_HjJNqxb3DREIo6upkvd170CJ6DjUmG1R53fDBJAOQ3ovF_vn3-a6B7MdWM&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfzMx21M5PrlR8SfDx5cYe1O2YYMDj_50rcHY1PqEK7aBg&oe=69D0E96F",
+  "Anuncio 02": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t45.1600-4/610951454_25690023910629278_3960263552087470076_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=ks2tVWxo41wQ7kNvwFm7HtJ&_nc_oc=AdodAsqTcCb5hF-NEdWuWcyjJfJ80kbsFT5WVrn-Yq1ZWJW1gBOCF538p_96qwKBQ4M&_nc_zt=1&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfxDJhO6oDNO8tfc3d2nQaHbpY2CuDrqd_zkKlur5DgELw&oe=69D10A1A",
+  "Anuncio 03": "https://scontent.fmvd1-1.fna.fbcdn.net/v/t15.5256-10/611204487_1308453387978694_4992649934029329098_n.jpg?_nc_cat=103&ccb=1-7&_nc_ohc=yimeNOPnSvMQ7kNvwGFscb6&_nc_oc=Adr3bm3538VhmZs8M1A2sDup-wu7iit0ebmU6dG9nz5YfA_hZ3Sw6sALINqS6UQFdwM&_nc_zt=23&_nc_ht=scontent.fmvd1-1.fna&edm=AOgd6ZUEAAAA&oh=00_Afzp4Lu9UAnkz7fIIaUgXuMHGOLwknCsPl69XixIE9R3zA&oe=69D1083C",
+  "Anuncio 04": "https://scontent.fmvd2-1.fna.fbcdn.net/v/t15.5256-10/611333940_682037001542083_2968562647689706255_n.jpg?_nc_cat=107&ccb=1-7&_nc_ohc=vpmejq0UzLcQ7kNvwFEfmhB&_nc_oc=Adq9D4U34xmQoG0LbQ4fw6zMSbDNpPhIOg5uHn0AwXNOkOy-rrbYqK_R2IEicse5GR4&_nc_zt=23&_nc_ht=scontent.fmvd2-1.fna&edm=AOgd6ZUEAAAA&oh=00_AfyH12bwZalsKcbwyFAKSB5_alNbuzPLfx5LtpccKrQvhg&oe=69D0EB50",
+  "Anuncio 01 - Video": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t15.5256-10/626137393_1838779040111896_7610228230263617060_n.jpg?_nc_cat=106&ccb=1-7&_nc_ohc=eC6I9GDuLrMQ7kNvwFko9K1&_nc_oc=Adp1o5F9aRkWGqJ_FxG3DyNcXB_y-2PROGgh5GbSfyxyiyOMRPuOmdZc3_3iCeQBYRY&_nc_zt=23&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_AfypHINA0YesI4rHBZ_-JcMX52mN-2qaa6YIy3ueBPLgVA&oe=69D0ECB0",
+  "Anuncio 01 - Grafica": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t45.1600-4/629353460_894202663394348_4325490651267065797_n.png?_nc_cat=106&ccb=1-7&_nc_ohc=jGkj2i6pTKIQ7kNvwGdDNRP&_nc_oc=AdrXdtCtdMdjcjz0qQyKYaVPLgMLcDwIrURZV89dEpCWar7OPDQ7jAH4Ovx5mRIxbms&_nc_zt=1&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_Afx0ckrNXH0vbxKB71bIoU7IFRBFzJ53IGfsDu3GfgGPFA&oe=69D1155B",
+  "Linkad Video": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t15.5256-10/626137393_1838779040111896_7610228230263617060_n.jpg?_nc_cat=106&ccb=1-7&_nc_ohc=eC6I9GDuLrMQ7kNvwFko9K1&_nc_oc=Adp1o5F9aRkWGqJ_FxG3DyNcXB_y-2PROGgh5GbSfyxyiyOMRPuOmdZc3_3iCeQBYRY&_nc_zt=23&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_AfzUf__mKLXSVw51pGT6nDR5mv80RHoohOQD1rr10XplAA&oe=69D0ECB0",
+  "Linkad Grafica": "https://scontent.fmvd2-2.fna.fbcdn.net/v/t45.1600-4/629353460_894202663394348_4325490651267065797_n.png?_nc_cat=106&ccb=1-7&_nc_ohc=jGkj2i6pTKIQ7kNvwGdDNRP&_nc_oc=AdrXdtCtdMdjcjz0qQyKYaVPLgMLcDwIrURZV89dEpCWar7OPDQ7jAH4Ovx5mRIxbms&_nc_zt=1&_nc_ht=scontent.fmvd2-2.fna&edm=AOgd6ZUEAAAA&oh=00_AfzbqfWspX6cHaKZQsHh0E4ClSwq25v4qq5l2rpXCAQYXg&oe=69D1155B",
+};
+
+function getThumbnail(ad_name) {
+  if (THUMBNAILS[ad_name]) return THUMBNAILS[ad_name];
+  const key = Object.keys(THUMBNAILS).find(k => ad_name.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(ad_name.toLowerCase()));
+  return key ? THUMBNAILS[key] : null;
+}
+
 function buildPreview(ad, format) {
   const isStory = format==='story'||format==='reel';
   const color = ad.campaign_name.toLowerCase().includes('trafico') ? '#378ADD' : '#1D9E75';
   const icon = format==='reel'?'▶':format==='story'?'◆':'▣';
   const w = isStory ? 82 : 112;
   const cta = ad.campaign_name.toLowerCase().includes('trafico') ? 'Ver más' : 'Enviar mensaje';
+  const thumb = getThumbnail(ad.ad_name);
+  const imgH = isStory ? 90 : 66;
+
+  const imgContent = thumb
+    ? `<img src="${thumb}" style="width:100%;height:${imgH}px;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextSibling.style.display='flex';" /><div style="display:none;height:${imgH}px;background:${color}18;align-items:center;justify-content:center;"><div style="width:36px;height:36px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:14px;font-weight:700;">U</span></div></div>`
+    : `<div style="height:${imgH}px;background:${color}18;display:flex;align-items:center;justify-content:center;"><div style="width:36px;height:36px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:14px;font-weight:700;">U</span></div></div>`;
+
   return `<div class="phone" style="width:${w}px;">
     <div style="height:5px;background:${color};"></div>
     <div style="display:flex;align-items:center;gap:4px;padding:5px 6px;">
       <div style="width:19px;height:19px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:${color};">U</div>
       <div><div style="font-size:7px;font-weight:600;color:#1a1a1a;">Umbro Uruguay</div><div style="font-size:6px;color:#888;">${icon} ${format.charAt(0).toUpperCase()+format.slice(1)}</div></div>
     </div>
-    ${isStory
-      ? `<div style="height:88px;background:${color}18;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;gap:4px;">
-          <div style="width:34px;height:34px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:14px;font-weight:700;">U</span></div>
-          <div style="font-size:7px;font-weight:500;color:#1a1a1a;text-align:center;">${ad.ad_name}</div>
-        </div>`
-      : `<div style="height:66px;background:${color}18;display:flex;align-items:center;justify-content:center;">
-          <div style="width:40px;height:40px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:16px;font-weight:700;">U</span></div>
-        </div>`}
+    ${imgContent}
     <div style="padding:5px 7px 7px;">
-      ${!isStory?`<div style="font-size:7.5px;font-weight:600;color:#1a1a1a;">${ad.ad_name}</div><div style="font-size:6.5px;color:#666;margin-top:1px;">Equipamientos Umbro Uruguay</div>`:''}
+      ${!isStory?`<div style="font-size:7.5px;font-weight:600;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ad.ad_name}</div>`:''}
       <div style="background:${color};color:#fff;font-size:7px;font-weight:600;padding:3px 6px;border-radius:4px;text-align:center;margin-top:4px;">${cta}</div>
     </div>
   </div>`;
