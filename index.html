@@ -488,7 +488,8 @@ function renderTop3() {
         </div>
         <div id="prev-${i}">${buildPreview(ad,'feed')}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   charts['chartTop3'] = new Chart(document.getElementById('chartTop3'),{
     type:'bar',
