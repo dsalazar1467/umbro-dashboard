@@ -247,7 +247,7 @@
   <div class="screen" id="screen-actualizar">
     <div class="update-panel">
       <h3>Actualizar datos desde Meta Ads</h3>
-      <p>Seguí estos pasos para obtener datos frescos y pegarlos acá.</p>
+      <p>Dos consultas en el Graph Explorer — métricas e imágenes. Pegá ambas y aplicá.</p>
 
       <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">1. Elegí el período</div>
       <div class="date-row">
@@ -255,13 +255,21 @@
         <div><label>Hasta</label><input type="date" id="inp-hasta" value="2026-03-31"></div>
       </div>
 
-      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">2. Copiá esta consulta y pegála en el <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:var(--green);">Graph Explorer</a></div>
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">2. Consulta de métricas → copiá y pegá en <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:var(--green);">Graph Explorer</a></div>
       <div class="query-box" id="query-box"></div>
-      <button class="sort-btn" style="margin-bottom:16px;" onclick="copyQuery()">Copiar consulta</button>
+      <button class="sort-btn" style="margin-bottom:4px;" onclick="copyQuery()">Copiar consulta de métricas</button>
 
-      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">3. Pegá el JSON de respuesta acá</div>
-      <textarea class="json-input" id="json-input" placeholder='Pegá aquí el contenido del campo "Response" del Graph Explorer...'></textarea>
-      <button class="btn-apply" onclick="applyData()">Aplicar datos</button>
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;margin-top:14px;">3. Consulta de imágenes → copiá y pegá en Graph Explorer</div>
+      <div class="query-box" id="query-box-thumbs" style="font-size:11px;">act_2127217434215204/ads?fields=id,name,creative{thumbnail_url}&limit=50</div>
+      <button class="sort-btn" style="margin-bottom:4px;" onclick="copyThumbsQuery()">Copiar consulta de imágenes</button>
+
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;margin-top:14px;">4. Pegá el JSON de métricas</div>
+      <textarea class="json-input" id="json-input" placeholder='Pegá aquí la respuesta de la consulta de métricas...' style="min-height:90px;"></textarea>
+
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;margin-top:12px;">5. Pegá el JSON de imágenes <span style="font-weight:400;color:var(--gray-500);">(opcional — si no pegás, se mantienen las previas)</span></div>
+      <textarea class="json-input" id="json-thumbs" placeholder='Pegá aquí la respuesta de la consulta de imágenes...' style="min-height:90px;"></textarea>
+
+      <button class="btn-apply" onclick="applyData()">Aplicar datos e imágenes</button>
       <div class="apply-msg" id="apply-msg"></div>
     </div>
   </div>
@@ -595,6 +603,14 @@ function updateQueryBox() {
   const q = `act_2127217434215204/insights?fields=adset_name,campaign_name,ad_name,spend,reach,impressions,clicks,ctr&level=ad&time_range={"since":"${desde}","until":"${hasta}"}`;
   const box = document.getElementById('query-box');
   if(box) box.textContent = q;
+}
+
+function copyThumbsQuery() {
+  const box = document.getElementById('query-box-thumbs');
+  navigator.clipboard.writeText(box.textContent).then(()=>{
+    box.style.background = '#E1F5EE';
+    setTimeout(()=>box.style.background='', 1000);
+  });
 }
 
 function copyQuery() {
