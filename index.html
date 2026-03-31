@@ -180,7 +180,7 @@
     <span style="font-size:12px;color:var(--gray-500);">Período:</span>
     <input type="date" id="bar-desde" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:6px;background:#fff;color:var(--gray-900);font-family:var(--font);cursor:pointer;" value="2025-12-01">
     <span style="font-size:12px;color:var(--gray-500);">—</span>
-    <input type="date" id="bar-hasta" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:6px;background:#fff;color:var(--gray-900);font-family:var(--font);cursor:pointer;" value="2026-03-30">
+    <input type="date" id="bar-hasta" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:6px;background:#fff;color:var(--gray-900);font-family:var(--font);cursor:pointer;" value="2026-03-31">
     <button onclick="applyDateFilter()" style="font-size:12px;font-weight:500;padding:4px 12px;border-radius:6px;border:none;background:var(--green);color:#fff;cursor:pointer;font-family:var(--font);">Aplicar</button>
     <div style="width:1px;height:16px;background:var(--gray-300);margin:0 4px;"></div>
     <button id="sf-all" onclick="setStatusFilter('all',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);cursor:pointer;font-family:var(--font);">Todos</button>
@@ -252,7 +252,7 @@
       <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">1. Elegí el período</div>
       <div class="date-row">
         <div><label>Desde</label><input type="date" id="inp-desde" value="2025-12-01"></div>
-        <div><label>Hasta</label><input type="date" id="inp-hasta" value="2026-03-30"></div>
+        <div><label>Hasta</label><input type="date" id="inp-hasta" value="2026-03-31"></div>
       </div>
 
       <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">2. Copiá esta consulta y pegála en el <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:var(--green);">Graph Explorer</a></div>
@@ -312,10 +312,36 @@ let ADS = [
   {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918,ad_id:"1252736473577555",campaign_running:false},
   {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766,ad_id:"2011509943039737",campaign_running:false},
   {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395,ad_id:"4272676882977264",campaign_running:false},
+  {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Anuncio 01 - Copia",spend:3301.12,reach:35712,impressions:74764,clicks:606,ctr:0.810551,ad_id:"1593913001849059",campaign_running:true},
+  {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Anuncio 03 - Copia",spend:563.91,reach:4888,impressions:8017,clicks:70,ctr:0.873145,ad_id:"2226934907859212",campaign_running:true},
+  {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Anuncio 02 - Copia",spend:1993.91,reach:22126,impressions:41598,clicks:354,ctr:0.851002,ad_id:"1440902137478160",campaign_running:true},
+  {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Anuncio 04 - Copia",spend:263.3,reach:2480,impressions:3573,clicks:37,ctr:1.035544,ad_id:"1686888742274146",campaign_running:true},
+  {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Express_1803",spend:5052.05,reach:17236,impressions:58067,clicks:806,ctr:1.388052,ad_id:"946857157811405",campaign_running:true},
 ];
 
-const RAW_PERIOD = { desde: '2025-12-01', hasta: '2026-03-30' };
-let activeFilter = { desde: '2025-12-01', hasta: '2026-03-30' };
+const RAW_PERIOD = { desde: '2025-12-01', hasta: '2026-03-31' };
+
+const CAMPAIGN_STOP_TIMES = {
+  "Equipamiento - Marzo - Mensajes":             "2026-04-16",
+  "Equipamiento - Enero - Trafico - 01/03":      "2026-03-01",
+  "Equipamiento - Enero - Mensajes - 01/03":     "2026-03-01",
+  "Equipamiento - Enero - Trafico - 15-02":      "2026-02-15",
+  "Equipamiento - Enero - Mensajes - 15_02":     "2026-02-15",
+  "Equipamiento - Enero - Mensajes":             "2026-01-15",
+  "Equipamiento - Enero - Trafico":              "2026-01-15",
+  "Equipamiento - Historias - 171225 - Trafico": "2025-12-23",
+  "Equipamiento - Historias - 161225 - Mensajes":"2025-12-23",
+  "Equipamiento - Dic 25 (0312)":                "2025-12-10",
+  "Equipamiento - Dic25":                        "2025-12-10",
+  "Equipamiento - Nov 25":                       "2025-12-10",
+};
+
+function getCampaignRunning(campaign_name) {
+  const stop = CAMPAIGN_STOP_TIMES[campaign_name];
+  if (!stop) return false;
+  return new Date(stop) >= new Date();
+}
+let activeFilter = { desde: '2025-12-01', hasta: '2026-03-31' };
 
 function daysBetween(a, b) {
   return Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000) + 1);
@@ -591,10 +617,8 @@ function applyData() {
     if(filtered.length === 0){ msg.style.color='var(--red)'; msg.textContent='No se encontraron anuncios con "equipamiento" en el período indicado.'; return; }
     const desde = document.getElementById('inp-desde').value || '2025-12-01';
     const hasta = document.getElementById('inp-hasta').value || '2026-03-30';
-    const today = new Date();
     ADS = filtered.map(r=>{
-      const stopDate = r.date_stop ? new Date(r.date_stop) : null;
-      const campaign_running = stopDate ? stopDate >= today : true;
+      const campaign_running = getCampaignRunning(r.campaign_name);
       return {
         adset_name: r.adset_name||'',
         campaign_name: r.campaign_name||'',
