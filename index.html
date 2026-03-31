@@ -174,12 +174,17 @@
 <div class="main">
 
   <div class="filter-bar">
-    <span style="font-size:12px;color:var(--gray-500);">Filtro activo:</span>
+    <span style="font-size:12px;color:var(--gray-500);">Filtro:</span>
     <span class="filter-keyword">equipamiento</span>
-    <span style="font-size:12px;color:var(--gray-500);">· nombre de campaña</span>
-    <span class="filter-period" id="period-label">1 dic 2025 — 30 mar 2026</span>
-    <span class="filter-count" id="filter-count"></span>
+    <div style="width:1px;height:16px;background:var(--gray-300);margin:0 4px;"></div>
+    <span style="font-size:12px;color:var(--gray-500);">Período:</span>
+    <input type="date" id="bar-desde" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:6px;background:#fff;color:var(--gray-900);font-family:var(--font);cursor:pointer;" value="2025-12-01">
+    <span style="font-size:12px;color:var(--gray-500);">—</span>
+    <input type="date" id="bar-hasta" style="font-size:12px;padding:4px 8px;border:1px solid var(--gray-300);border-radius:6px;background:#fff;color:var(--gray-900);font-family:var(--font);cursor:pointer;" value="2026-03-30">
+    <button onclick="applyDateFilter()" style="font-size:12px;font-weight:500;padding:4px 12px;border-radius:6px;border:none;background:var(--green);color:#fff;cursor:pointer;font-family:var(--font);">Aplicar</button>
+    <span id="filter-count" style="margin-left:auto;font-size:12px;color:var(--gray-500);"></span>
   </div>
+  <div id="date-msg" style="font-size:12px;color:var(--green);margin-bottom:12px;min-height:16px;padding:0 2px;"></div>
 
   <!-- RESUMEN -->
   <div class="screen active" id="screen-resumen">
@@ -295,7 +300,27 @@ let ADS = [
   {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395,ad_id:"4272676882977264"},
 ];
 
-function filteredAds() { return ADS.filter(a => a.campaign_name.toLowerCase().includes(KEYWORD)); }
+const RAW_PERIOD = { desde: '2025-12-01', hasta: '2026-03-30' };
+let activeFilter = { desde: '2025-12-01', hasta: '2026-03-30' };
+
+function daysBetween(a, b) {
+  return Math.max(1, Math.round((new Date(b) - new Date(a)) / 86400000) + 1);
+}
+
+function filteredAds() {
+  const all = ADS.filter(a => a.campaign_name.toLowerCase().includes(KEYWORD));
+  const rawDays = daysBetween(RAW_PERIOD.desde, RAW_PERIOD.hasta);
+  const selDays = daysBetween(activeFilter.desde, activeFilter.hasta);
+  if (selDays >= rawDays) return all;
+  const ratio = selDays / rawDays;
+  return all.map(a => ({
+    ...a,
+    spend: Math.round(a.spend * ratio * 100) / 100,
+    reach: Math.round(a.reach * ratio),
+    impressions: Math.round(a.impressions * ratio),
+    clicks: Math.round(a.clicks * ratio),
+  }));
+}
 function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'K' : String(Math.round(n)); }
 function fmtCur(n) { return '$' + Math.round(n).toLocaleString('es-UY'); }
 
@@ -544,6 +569,8 @@ function applyData() {
     if(!Array.isArray(parsed)) throw new Error('Formato inválido');
     const filtered = parsed.filter(r=>(r.campaign_name||'').toLowerCase().includes(KEYWORD));
     if(filtered.length === 0){ msg.style.color='var(--red)'; msg.textContent='No se encontraron anuncios con "equipamiento" en el período indicado.'; return; }
+    const desde = document.getElementById('inp-desde').value || '2025-12-01';
+    const hasta = document.getElementById('inp-hasta').value || '2026-03-30';
     ADS = filtered.map(r=>({
       adset_name: r.adset_name||'',
       campaign_name: r.campaign_name||'',
@@ -553,11 +580,15 @@ function applyData() {
       impressions: parseInt(r.impressions||0),
       clicks: parseInt(r.clicks||0),
       ctr: parseFloat(r.ctr||0),
+      date_start: r.date_start||desde,
+      date_stop: r.date_stop||hasta,
     }));
-    const desde = document.getElementById('inp-desde').value;
-    const hasta = document.getElementById('inp-hasta').value;
-    const fmtDate = d => { const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
-    document.getElementById('period-label').textContent = fmtDate(desde)+' — '+fmtDate(hasta);
+    RAW_PERIOD.desde = desde;
+    RAW_PERIOD.hasta = hasta;
+    activeFilter.desde = desde;
+    activeFilter.hasta = hasta;
+    document.getElementById('bar-desde').value = desde;
+    document.getElementById('bar-hasta').value = hasta;
     renderAll();
     msg.style.color='var(--green)'; msg.textContent=`✓ ${filtered.length} anuncios cargados correctamente.`;
     showScreen('resumen', document.querySelector('.tab'));
@@ -690,6 +721,32 @@ function exportPDF() {
 
 document.getElementById('inp-desde')?.addEventListener('change', updateQueryBox);
 document.getElementById('inp-hasta')?.addEventListener('change', updateQueryBox);
+
+
+function applyDateFilter() {
+  const desde = document.getElementById('bar-desde').value;
+  const hasta = document.getElementById('bar-hasta').value;
+  const msg = document.getElementById('date-msg');
+  if (!desde || !hasta) { msg.style.color='var(--red)'; msg.textContent='Seleccioná ambas fechas.'; return; }
+  if (desde > hasta) { msg.style.color='var(--red)'; msg.textContent='La fecha de inicio no puede ser posterior al fin.'; return; }
+  const rawDesde = RAW_PERIOD.desde;
+  const rawHasta = RAW_PERIOD.hasta;
+  const fmtLabel = d => { const p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+  const outsideRange = desde < rawDesde || hasta > rawHasta;
+  activeFilter = { desde, hasta };
+  document.getElementById('inp-desde').value = desde;
+  document.getElementById('inp-hasta').value = hasta;
+  updateQueryBox();
+  renderAll();
+  if (outsideRange) {
+    msg.style.color='var(--amber)';
+    msg.textContent='Atención: el período seleccionado excede los datos cargados ('+fmtLabel(rawDesde)+' — '+fmtLabel(rawHasta)+'). Actualizá los datos desde la pestaña correspondiente.';
+  } else {
+    msg.style.color='var(--green)';
+    msg.textContent='Mostrando: '+fmtLabel(desde)+' — '+fmtLabel(hasta)+' (estimación proporcional al período cargado).';
+    setTimeout(()=>{ msg.textContent=''; }, 5000);
+  }
+}
 
 renderAll();
 updateQueryBox();
