@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umbro Uruguay — Pauta Meta Equipamientos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-border: #5DCAA5;
+    --blue: #378ADD;
+    --amber: #EF9F27;
+    --coral: #F0997B;
+    --gray-50: #F7F6F3;
+    --gray-100: #ECEAE4;
+    --gray-300: #C4C2BA;
+    --gray-500: #888780;
+    --gray-700: #444441;
+    --gray-900: #1C1B19;
+    --red: #E24B4A;
+    --rank1: #EF9F27; --rank1t: #633806;
+    --rank2: #B4B2A9; --rank2t: #2C2C2A;
+    --rank3: #F0997B; --rank3t: #712B13;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--gray-50); color: var(--gray-900); font-size: 14px; line-height: 1.5; }
+
+  /* HEADER */
+  .header { background: var(--green); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: #fff; }
+  .header-title { color: #fff; font-weight: 600; font-size: 15px; }
+  .header-sub { color: rgba(255,255,255,0.7); font-size: 12px; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .btn-export { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: var(--font); transition: opacity .15s; }
+  .btn-export:hover { opacity: .85; }
+  .btn-xlsx { background: rgba(255,255,255,0.15); color: #fff; }
+  .btn-pdf { background: rgba(255,255,255,0.25); color: #fff; }
+
+  /* TABS */
+  .tabs-bar { background: #fff; border-bottom: 1px solid var(--gray-100); padding: 0 32px; display: flex; gap: 0; }
+  .tab { padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
+  .tab:hover { color: var(--gray-700); }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* MAIN */
+  .main { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
+
+  /* FILTER BAR */
+  .filter-bar { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius); padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; box-shadow: var(--shadow); }
+  .filter-keyword { font-family: var(--mono); font-size: 12px; background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green-border); border-radius: 6px; padding: 3px 10px; }
+  .filter-count { margin-left: auto; font-size: 12px; color: var(--gray-500); }
+  .filter-period { font-size: 12px; color: var(--gray-500); background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 6px; padding: 3px 10px; font-family: var(--mono); }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* UPDATE PANEL */
+  .update-panel { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .update-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .update-panel p { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; }
+  .query-box { background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 8px; padding: 10px 14px; font-family: var(--mono); font-size: 12px; color: var(--gray-700); margin-bottom: 12px; word-break: break-all; line-height: 1.6; }
+  .date-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .date-row label { font-size: 12px; color: var(--gray-500); display: block; margin-bottom: 4px; }
+  .date-row input[type=date] { padding: 7px 10px; border: 1px solid var(--gray-100); border-radius: 8px; font-size: 13px; font-family: var(--font); background: #fff; color: var(--gray-900); }
+  textarea.json-input { width: 100%; min-height: 120px; padding: 10px 14px; border: 1px solid var(--gray-100); border-radius: 8px; font-family: var(--mono); font-size: 12px; resize: vertical; background: #fff; color: var(--gray-900); }
+  .btn-apply { background: var(--green); color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font); margin-top: 10px; transition: background .15s; }
+  .btn-apply:hover { background: var(--green-dark); }
+  .apply-msg { font-size: 12px; margin-top: 8px; min-height: 18px; }
+
+  /* METRIC GRID */
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .metric-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .metric-label { font-size: 11px; color: var(--gray-500); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+  .metric-val { font-size: 22px; font-weight: 600; color: var(--gray-900); line-height: 1.1; }
+  .metric-sub { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+  /* CHART GRID */
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .chart-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow); }
+  .chart-card-title { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+
+  /* TOP3 */
+  .sort-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .sort-label { font-size: 12px; color: var(--gray-500); }
+  .sort-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid var(--gray-100); background: #fff; color: var(--gray-500); cursor: pointer; font-family: var(--font); transition: all .15s; }
+  .sort-btn.active { background: var(--green-light); border-color: var(--green-border); color: var(--green-dark); font-weight: 500; }
+  .top3-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 12px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 14px; }
+  .top3-card.r1 { border-left: 3px solid var(--rank1); }
+  .top3-card.r2 { border-left: 3px solid var(--rank2); }
+  .top3-card.r3 { border-left: 3px solid var(--rank3); }
+  .rank-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .top3-body { flex: 1; min-width: 0; }
+  .top3-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .top3-camp { font-size: 12px; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 10px; }
+  .top3-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .t3m { background: var(--gray-50); border-radius: 8px; padding: 8px 10px; }
+  .t3m-label { font-size: 10px; color: var(--gray-500); text-transform: uppercase; letter-spacing: .04em; }
+  .t3m-val { font-size: 15px; font-weight: 600; margin-top: 2px; }
+  .top3-preview { flex-shrink: 0; }
+  .fmt-tabs { display: flex; gap: 4px; margin-bottom: 6px; justify-content: center; }
+  .fmt-btn { font-size: 10px; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--gray-100); background: #fff; color: var(--gray-500); cursor: pointer; font-family: var(--font); }
+  .fmt-btn.active { background: #E6F1FB; border-color: #85B7EB; color: #0C447C; }
+  .phone { border-radius: 10px; border: 1px solid var(--gray-300); overflow: hidden; background: #fff; font-family: sans-serif; }
+
+  /* TABLE */
+  .table-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow); }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--gray-50); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--gray-100); white-space: nowrap; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--gray-100); color: var(--gray-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--gray-50); }
+  .ctr-high { color: var(--green); font-weight: 600; }
+  .ctr-mid { color: var(--blue); font-weight: 500; }
+  .camp-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; background: var(--gray-100); color: var(--gray-700); font-family: var(--mono); white-space: nowrap; }
+
+  /* LEGEND */
+  .donut-legend { font-size: 12px; color: var(--gray-500); }
+  .legend-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .legend-left { display: flex; align-items: center; gap: 6px; max-width: 75%; overflow: hidden; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .legend-pct { font-weight: 600; color: var(--gray-900); }
+  .prog { height: 4px; background: var(--gray-100); border-radius: 2px; overflow: hidden; margin-top: 3px; }
+  .prog-fill { height: 100%; border-radius: 2px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .main { padding: 16px; }
+    .header { padding: 0 16px; }
+    .tabs-bar { padding: 0 16px; overflow-x: auto; }
+    .top3-metrics { grid-template-columns: repeat(2, 1fr); }
+    .top3-preview { display: none; }
+    .date-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">UY</div>
+    <div>
+      <div class="header-title">Pauta Meta — Equipamientos</div>
+      <div class="header-sub">Umbro Uruguay · Dacrimar SA</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-export btn-xlsx" onclick="exportXLSX()">↓ Excel</button>
+    <button class="btn-export btn-pdf" onclick="exportPDF()">↓ PDF</button>
+  </div>
+</div>
+
+<div class="tabs-bar">
+  <div class="tab active" onclick="showScreen('resumen',this)">Resumen</div>
+  <div class="tab" onclick="showScreen('top3',this)">Top 3 anuncios</div>
+  <div class="tab" onclick="showScreen('todos',this)">Todos los anuncios</div>
+  <div class="tab" onclick="showScreen('actualizar',this)">Actualizar datos</div>
+</div>
+
+<div class="main">
+
+  <div class="filter-bar">
+    <span style="font-size:12px;color:var(--gray-500);">Filtro activo:</span>
+    <span class="filter-keyword">equipamiento</span>
+    <span style="font-size:12px;color:var(--gray-500);">· nombre de campaña</span>
+    <span class="filter-period" id="period-label">1 dic 2025 — 30 mar 2026</span>
+    <span class="filter-count" id="filter-count"></span>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="screen active" id="screen-resumen">
+    <div class="metric-grid" id="metric-cards"></div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Inversión por campaña (UYU)</div>
+        <div style="position:relative;height:280px;"><canvas id="chartInv"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">CTR por anuncio (%)</div>
+        <div style="position:relative;height:280px;"><canvas id="chartCTR"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-card-title">Distribución de inversión</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+        <div style="position:relative;height:220px;"><canvas id="chartDonut"></canvas></div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP 3 -->
+  <div class="screen" id="screen-top3">
+    <div class="sort-row">
+      <span class="sort-label">Ordenar por:</span>
+      <button class="sort-btn active" onclick="setSort('ctr',this)">CTR</button>
+      <button class="sort-btn" onclick="setSort('spend',this)">Inversión</button>
+      <button class="sort-btn" onclick="setSort('clicks',this)">Clics</button>
+      <button class="sort-btn" onclick="setSort('reach',this)">Alcance</button>
+    </div>
+    <div id="top3-list"></div>
+    <div class="chart-card" style="margin-top:4px;">
+      <div class="chart-card-title">Comparativa top 3</div>
+      <div style="position:relative;height:220px;"><canvas id="chartTop3"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TODOS -->
+  <div class="screen" id="screen-todos">
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Anuncio</th><th>Campaña</th><th>Inversión (UYU)</th>
+            <th>Alcance</th><th>Clics</th><th>CTR</th><th>Impresiones</th>
+          </tr></thead>
+          <tbody id="tbody-todos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTUALIZAR -->
+  <div class="screen" id="screen-actualizar">
+    <div class="update-panel">
+      <h3>Actualizar datos desde Meta Ads</h3>
+      <p>Seguí estos pasos para obtener datos frescos y pegarlos acá.</p>
+
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">1. Elegí el período</div>
+      <div class="date-row">
+        <div><label>Desde</label><input type="date" id="inp-desde" value="2025-12-01"></div>
+        <div><label>Hasta</label><input type="date" id="inp-hasta" value="2026-03-30"></div>
+      </div>
+
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">2. Copiá esta consulta y pegála en el <a href="https://developers.facebook.com/tools/explorer" target="_blank" style="color:var(--green);">Graph Explorer</a></div>
+      <div class="query-box" id="query-box"></div>
+      <button class="sort-btn" style="margin-bottom:16px;" onclick="copyQuery()">Copiar consulta</button>
+
+      <div style="font-size:12px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">3. Pegá el JSON de respuesta acá</div>
+      <textarea class="json-input" id="json-input" placeholder='Pegá aquí el contenido del campo "Response" del Graph Explorer...'></textarea>
+      <button class="btn-apply" onclick="applyData()">Aplicar datos</button>
+      <div class="apply-msg" id="apply-msg"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const KEYWORD = 'equipamiento';
+const COLORS = ['#1D9E75','#378ADD','#EF9F27','#D4537E','#534AB7','#D85A30','#0F6E56','#185FA5','#BA7517','#993C1D'];
+let charts = {}, currentSort = 'ctr';
+
+let ADS = [
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805},
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0},
+  {adset_name:"Equipamiento - Dic25 - Express",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Express -",spend:160.16,reach:2100,impressions:2522,clicks:27,ctr:1.070579},
+  {adset_name:"Equipamiento - Dic 25",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Personalizados",spend:255.44,reach:3961,impressions:5414,clicks:68,ctr:1.256003},
+  {adset_name:"Equipamiento - Dic 25- Personalizado",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Personalizados",spend:1611.43,reach:14547,impressions:25168,clicks:273,ctr:1.084711},
+  {adset_name:"Equipamiento - Dic 25- Express",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Express",spend:1325.02,reach:12662,impressions:20476,clicks:217,ctr:1.059777},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 01",spend:2110.74,reach:12365,impressions:23560,clicks:510,ctr:2.164686},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 02",spend:1515.32,reach:8529,impressions:16897,clicks:164,ctr:0.970586},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 01",spend:2637.31,reach:17018,impressions:27438,clicks:1946,ctr:7.092354},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 02",spend:563.48,reach:5258,impressions:8106,clicks:128,ctr:1.579077},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 01",spend:996.7,reach:26947,impressions:48301,clicks:1373,ctr:2.842591},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 02",spend:1311.76,reach:36499,impressions:64452,clicks:1521,ctr:2.359896},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 03",spend:122.72,reach:1979,impressions:3471,clicks:65,ctr:1.872659},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 04",spend:191.08,reach:2817,impressions:4003,clicks:181,ctr:4.521609},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 01",spend:2102.03,reach:34330,impressions:74368,clicks:781,ctr:1.050183},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 02",spend:354.93,reach:4293,impressions:6882,clicks:77,ctr:1.118861},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 03",spend:93.43,reach:1159,impressions:1586,clicks:16,ctr:1.008827},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 04",spend:64.08,reach:543,impressions:865,clicks:6,ctr:0.693642},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 04",spend:652.44,reach:4685,impressions:10240,clicks:83,ctr:0.810547},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 03",spend:129.33,reach:1266,impressions:1972,clicks:10,ctr:0.507099},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 02",spend:1679.02,reach:12839,impressions:28131,clicks:263,ctr:0.934912},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 01",spend:6663.95,reach:63100,impressions:180541,clicks:1602,ctr:0.887333},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395},
+];
+
+function filteredAds() { return ADS.filter(a => a.campaign_name.toLowerCase().includes(KEYWORD)); }
+function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'K' : String(Math.round(n)); }
+function fmtCur(n) { return '$' + Math.round(n).toLocaleString('es-UY'); }
+
+function getCampaigns(ads) {
+  const map = {};
+  ads.forEach(a => {
+    if (!map[a.campaign_name]) map[a.campaign_name] = {name:a.campaign_name,spend:0,clicks:0,reach:0,impressions:0};
+    map[a.campaign_name].spend += a.spend;
+    map[a.campaign_name].clicks += a.clicks;
+    map[a.campaign_name].reach += a.reach;
+    map[a.campaign_name].impressions += a.impressions;
+  });
+  return Object.values(map).sort((a,b) => b.spend - a.spend);
+}
+
+function campShort(name) {
+  return name.replace('Equipamiento - ','').replace('Equipamientos - ','');
+}
+
+function renderMetrics() {
+  const ads = filteredAds();
+  const totSpend = ads.reduce((s,a)=>s+a.spend,0);
+  const totReach = ads.reduce((s,a)=>s+a.reach,0);
+  const totImpr = ads.reduce((s,a)=>s+a.impressions,0);
+  const totClicks = ads.reduce((s,a)=>s+a.clicks,0);
+  const avgCTR = totImpr > 0 ? totClicks/totImpr*100 : 0;
+  const camps = getCampaigns(ads);
+  document.getElementById('filter-count').textContent = ads.length + ' anuncios · ' + camps.length + ' campañas';
+  document.getElementById('metric-cards').innerHTML = [
+    {label:'Inversión total', val:'UYU '+Math.round(totSpend).toLocaleString('es-UY'), sub:'período seleccionado'},
+    {label:'Alcance total', val:fmt(totReach), sub:'personas únicas'},
+    {label:'Impresiones', val:fmt(totImpr), sub:'total'},
+    {label:'Clics totales', val:fmt(totClicks), sub:''},
+    {label:'CTR promedio', val:avgCTR.toFixed(2)+'%', sub:'clics / impresiones'},
+    {label:'Campañas', val:camps.length, sub:ads.length+' anuncios'},
+  ].map(c=>`<div class="metric-card"><div class="metric-label">${c.label}</div><div class="metric-val">${c.val}</div><div class="metric-sub">${c.sub}</div></div>`).join('');
+}
+
+function renderCharts() {
+  ['chartInv','chartCTR','chartDonut'].forEach(id=>{if(charts[id]){charts[id].destroy();delete charts[id];}});
+  const ads = filteredAds();
+  const camps = getCampaigns(ads);
+
+  charts['chartInv'] = new Chart(document.getElementById('chartInv'),{
+    type:'bar',
+    data:{labels:camps.map(c=>campShort(c.name)),datasets:[{data:camps.map(c=>Math.round(c.spend)),backgroundColor:'#1D9E75',borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:11},color:'#888',callback:v=>'$'+v.toLocaleString()}},
+              y:{grid:{display:false},ticks:{font:{size:11},color:'#555'}}}}
+  });
+
+  const sorted = [...ads].sort((a,b)=>b.ctr-a.ctr);
+  charts['chartCTR'] = new Chart(document.getElementById('chartCTR'),{
+    type:'bar',
+    data:{labels:sorted.map(a=>a.ad_name),datasets:[{data:sorted.map(a=>Math.round(a.ctr*100)/100),backgroundColor:sorted.map(a=>a.ctr>=5?'#1D9E75':a.ctr>=2?'#378ADD':'#B4B2A9'),borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},
+      scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:11},color:'#888',callback:v=>v+'%'}},
+              y:{grid:{display:false},ticks:{font:{size:11},color:'#555'}}}}
+  });
+
+  const total = camps.reduce((s,c)=>s+c.spend,0);
+  charts['chartDonut'] = new Chart(document.getElementById('chartDonut'),{
+    type:'doughnut',
+    data:{labels:camps.map(c=>campShort(c.name)),datasets:[{data:camps.map(c=>Math.round(c.spend)),backgroundColor:COLORS.slice(0,camps.length),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
+  });
+  document.getElementById('donut-legend').innerHTML = camps.map((c,i)=>{
+    const pct = total>0?Math.round(c.spend/total*100):0;
+    return `<div class="legend-item"><div class="legend-left"><span class="legend-dot" style="background:${COLORS[i]};"></span><span class="legend-name">${campShort(c.name)}</span></div><span class="legend-pct">${pct}%</span></div><div class="prog"><div class="prog-fill" style="width:${pct}%;background:${COLORS[i]};"></div></div>`;
+  }).join('');
+}
+
+function renderTable() {
+  const ads = filteredAds().sort((a,b)=>b.spend-a.spend);
+  document.getElementById('tbody-todos').innerHTML = ads.map(a=>{
+    const ctrClass = a.ctr>=5?'ctr-high':a.ctr>=2?'ctr-mid':'';
+    return `<tr>
+      <td title="${a.ad_name}" style="font-weight:500;">${a.ad_name}</td>
+      <td><span class="camp-badge" title="${a.campaign_name}">${campShort(a.campaign_name).substring(0,22)}</span></td>
+      <td>${fmtCur(a.spend)}</td>
+      <td>${fmt(a.reach)}</td>
+      <td>${fmt(a.clicks)}</td>
+      <td class="${ctrClass}">${Math.round(a.ctr*100)/100}%</td>
+      <td>${fmt(a.impressions)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildPreview(ad, format) {
+  const isStory = format==='story'||format==='reel';
+  const color = ad.campaign_name.toLowerCase().includes('trafico') ? '#378ADD' : '#1D9E75';
+  const icon = format==='reel'?'▶':format==='story'?'◆':'▣';
+  const w = isStory ? 82 : 112;
+  const cta = ad.campaign_name.toLowerCase().includes('trafico') ? 'Ver más' : 'Enviar mensaje';
+  return `<div class="phone" style="width:${w}px;">
+    <div style="height:5px;background:${color};"></div>
+    <div style="display:flex;align-items:center;gap:4px;padding:5px 6px;">
+      <div style="width:19px;height:19px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:${color};">U</div>
+      <div><div style="font-size:7px;font-weight:600;color:#1a1a1a;">Umbro Uruguay</div><div style="font-size:6px;color:#888;">${icon} ${format.charAt(0).toUpperCase()+format.slice(1)}</div></div>
+    </div>
+    ${isStory
+      ? `<div style="height:88px;background:${color}18;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;gap:4px;">
+          <div style="width:34px;height:34px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:14px;font-weight:700;">U</span></div>
+          <div style="font-size:7px;font-weight:500;color:#1a1a1a;text-align:center;">${ad.ad_name}</div>
+        </div>`
+      : `<div style="height:66px;background:${color}18;display:flex;align-items:center;justify-content:center;">
+          <div style="width:40px;height:40px;border-radius:7px;background:${color};display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:16px;font-weight:700;">U</span></div>
+        </div>`}
+    <div style="padding:5px 7px 7px;">
+      ${!isStory?`<div style="font-size:7.5px;font-weight:600;color:#1a1a1a;">${ad.ad_name}</div><div style="font-size:6.5px;color:#666;margin-top:1px;">Equipamientos Umbro Uruguay</div>`:''}
+      <div style="background:${color};color:#fff;font-size:7px;font-weight:600;padding:3px 6px;border-radius:4px;text-align:center;margin-top:4px;">${cta}</div>
+    </div>
+  </div>`;
+}
+
+function setPreviewFormat(idx, format, btn) {
+  document.querySelectorAll(`.fmt-${idx}`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const sorted = [...filteredAds()].sort((a,b)=>b[currentSort]-a[currentSort]);
+  document.getElementById(`prev-${idx}`).innerHTML = buildPreview(sorted[idx], format);
+}
+
+function setSort(field, btn) {
+  currentSort = field;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTop3();
+}
+
+function renderTop3() {
+  if(charts['chartTop3']){charts['chartTop3'].destroy();delete charts['chartTop3'];}
+  const ads = filteredAds();
+  const sorted = [...ads].sort((a,b)=>b[currentSort]-a[currentSort]);
+  const top3 = sorted.slice(0,3);
+  const RK = [['r1','var(--rank1)','var(--rank1t)'],['r2','var(--rank2)','var(--rank2t)'],['r3','var(--rank3)','var(--rank3t)']];
+
+  document.getElementById('top3-list').innerHTML = top3.map((ad,i)=>`
+    <div class="top3-card ${RK[i][0]}">
+      <div class="rank-circle" style="background:${RK[i][1]};color:${RK[i][2]};">${i+1}</div>
+      <div class="top3-body">
+        <div class="top3-name">${ad.ad_name}</div>
+        <div class="top3-camp">${ad.campaign_name}</div>
+        <div class="top3-metrics">
+          <div class="t3m"><div class="t3m-label">Inversión</div><div class="t3m-val">${fmtCur(ad.spend)}</div></div>
+          <div class="t3m"><div class="t3m-label">CTR</div><div class="t3m-val" style="color:var(--green);">${Math.round(ad.ctr*100)/100}%</div></div>
+          <div class="t3m"><div class="t3m-label">Clics</div><div class="t3m-val">${fmt(ad.clicks)}</div></div>
+          <div class="t3m"><div class="t3m-label">Alcance</div><div class="t3m-val">${fmt(ad.reach)}</div></div>
+        </div>
+      </div>
+      <div class="top3-preview">
+        <div class="fmt-tabs">
+          ${['feed','story','reel'].map(f=>`<button class="fmt-btn fmt-${i} ${f==='feed'?'active':''}" onclick="setPreviewFormat(${i},'${f}',this)">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join('')}
+        </div>
+        <div id="prev-${i}">${buildPreview(ad,'feed')}</div>
+      </div>
+    </div>`).join('');
+
+  charts['chartTop3'] = new Chart(document.getElementById('chartTop3'),{
+    type:'bar',
+    data:{
+      labels:top3.map(a=>a.ad_name),
+      datasets:[
+        {label:'CTR %',data:top3.map(a=>Math.round(a.ctr*100)/100),backgroundColor:['#EF9F27','#B4B2A9','#F0997B'],borderRadius:5,yAxisID:'yCTR'},
+        {label:'Clics',data:top3.map(a=>a.clicks),backgroundColor:['rgba(55,138,221,.5)','rgba(55,138,221,.35)','rgba(55,138,221,.2)'],borderRadius:5,yAxisID:'yClics'},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:11},color:'#888'}},
+        yCTR:{position:'left',grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:11},color:'#1D9E75',callback:v=>v+'%'}},
+        yClics:{position:'right',grid:{display:false},ticks:{font:{size:11},color:'#378ADD'}},
+      }}
+  });
+}
+
+function showScreen(name, tabEl) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(tabEl) tabEl.classList.add('active');
+  if(name==='top3') renderTop3();
+  updateQueryBox();
+}
+
+function updateQueryBox() {
+  const desde = document.getElementById('inp-desde')?.value || '2025-12-01';
+  const hasta = document.getElementById('inp-hasta')?.value || '2026-03-30';
+  const q = `act_2127217434215204/insights?fields=adset_name,campaign_name,ad_name,spend,reach,impressions,clicks,ctr&level=ad&time_range={"since":"${desde}","until":"${hasta}"}`;
+  const box = document.getElementById('query-box');
+  if(box) box.textContent = q;
+}
+
+function copyQuery() {
+  const box = document.getElementById('query-box');
+  navigator.clipboard.writeText(box.textContent).then(()=>{
+    box.style.background = '#E1F5EE';
+    setTimeout(()=>box.style.background='', 1000);
+  });
+}
+
+function applyData() {
+  const raw = document.getElementById('json-input').value.trim();
+  const msg = document.getElementById('apply-msg');
+  if(!raw){ msg.style.color='var(--red)'; msg.textContent='Pegá el JSON antes de aplicar.'; return; }
+  try {
+    let parsed = JSON.parse(raw);
+    if(parsed.data) parsed = parsed.data;
+    if(!Array.isArray(parsed)) throw new Error('Formato inválido');
+    const filtered = parsed.filter(r=>(r.campaign_name||'').toLowerCase().includes(KEYWORD));
+    if(filtered.length === 0){ msg.style.color='var(--red)'; msg.textContent='No se encontraron anuncios con "equipamiento" en el período indicado.'; return; }
+    ADS = filtered.map(r=>({
+      adset_name: r.adset_name||'',
+      campaign_name: r.campaign_name||'',
+      ad_name: r.ad_name||'—',
+      spend: parseFloat(r.spend||0),
+      reach: parseInt(r.reach||0),
+      impressions: parseInt(r.impressions||0),
+      clicks: parseInt(r.clicks||0),
+      ctr: parseFloat(r.ctr||0),
+    }));
+    const desde = document.getElementById('inp-desde').value;
+    const hasta = document.getElementById('inp-hasta').value;
+    const fmtDate = d => { const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
+    document.getElementById('period-label').textContent = fmtDate(desde)+' — '+fmtDate(hasta);
+    renderAll();
+    msg.style.color='var(--green)'; msg.textContent=`✓ ${filtered.length} anuncios cargados correctamente.`;
+    showScreen('resumen', document.querySelector('.tab'));
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  } catch(e) {
+    msg.style.color='var(--red)'; msg.textContent='Error al procesar el JSON. Asegurate de pegar solo el contenido del campo "Response".';
+  }
+}
+
+function renderAll() {
+  renderMetrics(); renderCharts(); renderTable();
+}
+
+function exportXLSX() {
+  const ads = filteredAds();
+  const wb = XLSX.utils.book_new();
+  const period = document.getElementById('period-label').textContent;
+  const ws1 = XLSX.utils.aoa_to_sheet([
+    ['Reporte Pauta Meta — Equipamientos','','','','','',''],
+    ['Umbro Uruguay · Dacrimar SA','','Período:',period,'','',''],
+    [],
+    ['Anuncio','Campaña','Conjunto de anuncios','Inversión (UYU)','Alcance','Clics','CTR (%)','Impresiones'],
+    ...ads.sort((a,b)=>b.spend-a.spend).map(a=>[a.ad_name,a.campaign_name,a.adset_name,Math.round(a.spend),a.reach,a.clicks,Math.round(a.ctr*100)/100,a.impressions])
+  ]);
+  ws1['!cols']=[{wch:25},{wch:40},{wch:35},{wch:15},{wch:10},{wch:8},{wch:8},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Anuncios');
+
+  const top3=[...ads].sort((a,b)=>b.ctr-a.ctr).slice(0,3);
+  const ws2 = XLSX.utils.aoa_to_sheet([
+    ['Top 3 anuncios — por CTR','','','','','',''],
+    ['Umbro Uruguay','','Período:',period,'','',''],
+    [],
+    ['Pos.','Anuncio','Campaña','Inversión (UYU)','Alcance','Clics','CTR (%)','Impresiones'],
+    ...top3.map((a,i)=>[i+1,a.ad_name,a.campaign_name,Math.round(a.spend),a.reach,a.clicks,Math.round(a.ctr*100)/100,a.impressions])
+  ]);
+  ws2['!cols']=[{wch:5},{wch:25},{wch:40},{wch:15},{wch:10},{wch:8},{wch:8},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Top 3');
+
+  const totSpend=ads.reduce((s,a)=>s+a.spend,0), totReach=ads.reduce((s,a)=>s+a.reach,0);
+  const totImpr=ads.reduce((s,a)=>s+a.impressions,0), totClicks=ads.reduce((s,a)=>s+a.clicks,0);
+  const ws3 = XLSX.utils.aoa_to_sheet([
+    ['Resumen ejecutivo'],['Umbro Uruguay · Dacrimar SA'],['Período',period],[],
+    ['Métrica','Valor'],
+    ['Inversión total (UYU)',Math.round(totSpend)],['Alcance total',totReach],
+    ['Impresiones totales',totImpr],['Clics totales',totClicks],
+    ['CTR promedio (%)',Math.round(totClicks/totImpr*10000)/100],
+    ['Anuncios filtrados',ads.length],['Campañas',getCampaigns(ads).length],
+  ]);
+  ws3['!cols']=[{wch:25},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Resumen');
+  XLSX.writeFile(wb,'Umbro_Equipamientos_Meta.xlsx');
+}
+
+function exportPDF() {
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210, M=16;
+  const period = document.getElementById('period-label').textContent;
+  const ads = filteredAds();
+
+  doc.setFillColor(29,158,117); doc.rect(0,0,W,22,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('Pauta Meta — Equipamientos',M,10);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('Umbro Uruguay · Dacrimar SA',M,16);
+  doc.text(period,W-M,16,{align:'right'});
+
+  let y=32;
+  const totSpend=ads.reduce((s,a)=>s+a.spend,0),totReach=ads.reduce((s,a)=>s+a.reach,0);
+  const totImpr=ads.reduce((s,a)=>s+a.impressions,0),totClicks=ads.reduce((s,a)=>s+a.clicks,0);
+  const avgCTR=Math.round(totClicks/totImpr*10000)/100;
+
+  doc.setTextColor(30,30,30); doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text('Resumen de métricas',M,y); y+=7;
+  const mets=[
+    ['Inversión total','UYU '+Math.round(totSpend).toLocaleString()],
+    ['Alcance',fmt(totReach)],['Impresiones',fmt(totImpr)],
+    ['Clics',fmt(totClicks)],['CTR promedio',avgCTR+'%'],['Anuncios',String(ads.length)]
+  ];
+  const cw=(W-M*2-10)/3, ch=18;
+  mets.forEach((mt,i)=>{
+    const col=i%3,row=Math.floor(i/3),cx=M+col*(cw+5),cy=y+row*(ch+4);
+    doc.setFillColor(247,246,243); doc.roundedRect(cx,cy,cw,ch,2,2,'F');
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(120,120,120); doc.text(mt[0],cx+4,cy+6);
+    doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30); doc.text(mt[1],cx+4,cy+13);
+  });
+  y+=46;
+
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+  doc.text('Top 3 anuncios (por CTR)',M,y); y+=7;
+  const top3=[...ads].sort((a,b)=>b.ctr-a.ctr).slice(0,3);
+  const RC=[[239,159,39],[180,178,169],[240,153,123]];
+  top3.forEach((ad,i)=>{
+    const [r,g,b]=RC[i];
+    doc.setFillColor(r,g,b); doc.circle(M+4,y+3,3.5,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.text(String(i+1),M+4,y+4.5,{align:'center'});
+    doc.setTextColor(30,30,30); doc.setFontSize(9); doc.setFont('helvetica','bold');
+    doc.text(ad.ad_name.length>52?ad.ad_name.substring(0,52)+'…':ad.ad_name,M+11,y+2.5);
+    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
+    doc.text(ad.campaign_name.length>65?ad.campaign_name.substring(0,65)+'…':ad.campaign_name,M+11,y+7);
+    [['Inversión','UYU '+Math.round(ad.spend).toLocaleString()],['CTR',Math.round(ad.ctr*100)/100+'%'],['Clics',String(ad.clicks)],['Alcance',fmt(ad.reach)]].forEach((c,j)=>{
+      const cx=M+11+j*44; doc.setFontSize(6.5); doc.setTextColor(140,140,140); doc.text(c[0],cx,y+12);
+      doc.setFontSize(8.5); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30); doc.text(c[1],cx,y+17); doc.setFont('helvetica','normal');
+    });
+    if(i<2){doc.setDrawColor(225,225,225); doc.line(M,y+21,W-M,y+21);}
+    y+=24;
+  });
+
+  y+=4;
+  doc.setFontSize(11); doc.setFont('helvetica','bold'); doc.setTextColor(30,30,30);
+  doc.text('Detalle completo de anuncios',M,y); y+=7;
+  const cols=[['Anuncio',48],['Campaña',58],['Inversión',22],['Clics',14],['CTR',14],['Alcance',14]];
+  let cx=M;
+  doc.setFillColor(247,246,243); doc.rect(M,y-4,W-M*2,7,'F');
+  cols.forEach(([h,w])=>{doc.setFontSize(7); doc.setFont('helvetica','bold'); doc.setTextColor(100,100,100); doc.text(h,cx+1,y); cx+=w;});
+  y+=5;
+  ads.sort((a,b)=>b.spend-a.spend).forEach((a,ri)=>{
+    if(y>275){doc.addPage();y=20;}
+    if(ri%2===0){doc.setFillColor(252,252,251);doc.rect(M,y-3.5,W-M*2,7,'F');}
+    cx=M;
+    [[a.ad_name.length>24?a.ad_name.substring(0,24)+'…':a.ad_name,48],[campShort(a.campaign_name).substring(0,30),58],['UYU '+Math.round(a.spend).toLocaleString(),22],[String(a.clicks),14],[Math.round(a.ctr*100)/100+'%',14],[fmt(a.reach),14]].forEach(([txt,w])=>{
+      doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(40,40,40); doc.text(txt,cx+1,y); cx+=w;
+    });
+    y+=7;
+  });
+  doc.setFontSize(7); doc.setTextColor(160,160,160);
+  doc.text('Umbro Uruguay · Dacrimar SA · Datos reales Meta Ads · '+period,W/2,290,{align:'center'});
+  doc.save('Umbro_Equipamientos_Meta.pdf');
+}
+
+document.getElementById('inp-desde')?.addEventListener('change', updateQueryBox);
+document.getElementById('inp-hasta')?.addEventListener('change', updateQueryBox);
+
+renderAll();
+updateQueryBox();
+</script>
+</body>
+</html>
