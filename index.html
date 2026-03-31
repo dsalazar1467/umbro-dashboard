@@ -264,32 +264,35 @@ const KEYWORD = 'equipamiento';
 const COLORS = ['#1D9E75','#378ADD','#EF9F27','#D4537E','#534AB7','#D85A30','#0F6E56','#185FA5','#BA7517','#993C1D'];
 let charts = {}, currentSort = 'ctr';
 
+const ACT = '2127217434215204';
+function metaLink(id) { return id ? `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${ACT}&selected_ad_ids=${id}` : null; }
+
 let ADS = [
-  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805},
-  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0},
-  {adset_name:"Equipamiento - Dic25 - Express",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Express -",spend:160.16,reach:2100,impressions:2522,clicks:27,ctr:1.070579},
-  {adset_name:"Equipamiento - Dic 25",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Personalizados",spend:255.44,reach:3961,impressions:5414,clicks:68,ctr:1.256003},
-  {adset_name:"Equipamiento - Dic 25- Personalizado",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Personalizados",spend:1611.43,reach:14547,impressions:25168,clicks:273,ctr:1.084711},
-  {adset_name:"Equipamiento - Dic 25- Express",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Express",spend:1325.02,reach:12662,impressions:20476,clicks:217,ctr:1.059777},
-  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 01",spend:2110.74,reach:12365,impressions:23560,clicks:510,ctr:2.164686},
-  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 02",spend:1515.32,reach:8529,impressions:16897,clicks:164,ctr:0.970586},
-  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 01",spend:2637.31,reach:17018,impressions:27438,clicks:1946,ctr:7.092354},
-  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 02",spend:563.48,reach:5258,impressions:8106,clicks:128,ctr:1.579077},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 01",spend:996.7,reach:26947,impressions:48301,clicks:1373,ctr:2.842591},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 02",spend:1311.76,reach:36499,impressions:64452,clicks:1521,ctr:2.359896},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 03",spend:122.72,reach:1979,impressions:3471,clicks:65,ctr:1.872659},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 04",spend:191.08,reach:2817,impressions:4003,clicks:181,ctr:4.521609},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 01",spend:2102.03,reach:34330,impressions:74368,clicks:781,ctr:1.050183},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 02",spend:354.93,reach:4293,impressions:6882,clicks:77,ctr:1.118861},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 03",spend:93.43,reach:1159,impressions:1586,clicks:16,ctr:1.008827},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 04",spend:64.08,reach:543,impressions:865,clicks:6,ctr:0.693642},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 04",spend:652.44,reach:4685,impressions:10240,clicks:83,ctr:0.810547},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 03",spend:129.33,reach:1266,impressions:1972,clicks:10,ctr:0.507099},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 02",spend:1679.02,reach:12839,impressions:28131,clicks:263,ctr:0.934912},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 01",spend:6663.95,reach:63100,impressions:180541,clicks:1602,ctr:0.887333},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395},
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805,ad_id:"120234725640900192"},
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0,ad_id:"120234726503410192"},
+  {adset_name:"Equipamiento - Dic25 - Express",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Express -",spend:160.16,reach:2100,impressions:2522,clicks:27,ctr:1.070579,ad_id:"120235346747990192"},
+  {adset_name:"Equipamiento - Dic 25",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Personalizados",spend:255.44,reach:3961,impressions:5414,clicks:68,ctr:1.256003,ad_id:"120235346760730192"},
+  {adset_name:"Equipamiento - Dic 25- Personalizado",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Personalizados",spend:1611.43,reach:14547,impressions:25168,clicks:273,ctr:1.084711,ad_id:"120235410631610192"},
+  {adset_name:"Equipamiento - Dic 25- Express",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Express",spend:1325.02,reach:12662,impressions:20476,clicks:217,ctr:1.059777,ad_id:"120235410879500192"},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 01",spend:2110.74,reach:12365,impressions:23560,clicks:510,ctr:2.164686,ad_id:"120236152805800192"},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 02",spend:1515.32,reach:8529,impressions:16897,clicks:164,ctr:0.970586,ad_id:"120236153581120192"},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 01",spend:2637.31,reach:17018,impressions:27438,clicks:1946,ctr:7.092354,ad_id:"120236200679660192"},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 02",spend:563.48,reach:5258,impressions:8106,clicks:128,ctr:1.579077,ad_id:"120236200824640192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 01",spend:996.7,reach:26947,impressions:48301,clicks:1373,ctr:2.842591,ad_id:"120236973048300192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 02",spend:1311.76,reach:36499,impressions:64452,clicks:1521,ctr:2.359896,ad_id:"120236973422930192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 03",spend:122.72,reach:1979,impressions:3471,clicks:65,ctr:1.872659,ad_id:"120236973889520192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 04",spend:191.08,reach:2817,impressions:4003,clicks:181,ctr:4.521609,ad_id:"120236974060730192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 01",spend:2102.03,reach:34330,impressions:74368,clicks:781,ctr:1.050183,ad_id:"120236974211440192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 02",spend:354.93,reach:4293,impressions:6882,clicks:77,ctr:1.118861,ad_id:"120236974369170192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 03",spend:93.43,reach:1159,impressions:1586,clicks:16,ctr:1.008827,ad_id:"120236974424060192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 04",spend:64.08,reach:543,impressions:865,clicks:6,ctr:0.693642,ad_id:"120236974635390192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 04",spend:652.44,reach:4685,impressions:10240,clicks:83,ctr:0.810547,ad_id:"120237504075490192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 03",spend:129.33,reach:1266,impressions:1972,clicks:10,ctr:0.507099,ad_id:"120237504075510192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 02",spend:1679.02,reach:12839,impressions:28131,clicks:263,ctr:0.934912,ad_id:"120237504075520192"},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 01",spend:6663.95,reach:63100,impressions:180541,clicks:1602,ctr:0.887333,ad_id:"120237504075530192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918,ad_id:"120237504104140192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766,ad_id:"120237504104150192"},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395,ad_id:"120237504104160192"},
 ];
 
 function filteredAds() { return ADS.filter(a => a.campaign_name.toLowerCase().includes(KEYWORD)); }
@@ -369,8 +372,14 @@ function renderTable() {
   const ads = filteredAds().sort((a,b)=>b.spend-a.spend);
   document.getElementById('tbody-todos').innerHTML = ads.map(a=>{
     const ctrClass = a.ctr>=5?'ctr-high':a.ctr>=2?'ctr-mid':'';
+    const link = metaLink(a.ad_id);
     return `<tr>
-      <td title="${a.ad_name}" style="font-weight:500;">${a.ad_name}</td>
+      <td style="font-weight:500;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span title="${a.ad_name}">${a.ad_name}</span>
+          ${link?`<a href="${link}" target="_blank" style="flex-shrink:0;font-size:10px;color:#185FA5;background:#E6F1FB;border:1px solid #85B7EB;border-radius:4px;padding:1px 6px;text-decoration:none;white-space:nowrap;">↗ Meta</a>`:''}
+        </div>
+      </td>
       <td><span class="camp-badge" title="${a.campaign_name}">${campShort(a.campaign_name).substring(0,22)}</span></td>
       <td>${fmtCur(a.spend)}</td>
       <td>${fmt(a.reach)}</td>
@@ -455,11 +464,16 @@ function renderTop3() {
   const top3 = sorted.slice(0,3);
   const RK = [['r1','var(--rank1)','var(--rank1t)'],['r2','var(--rank2)','var(--rank2t)'],['r3','var(--rank3)','var(--rank3t)']];
 
-  document.getElementById('top3-list').innerHTML = top3.map((ad,i)=>`
+  document.getElementById('top3-list').innerHTML = top3.map((ad,i)=>{
+    const link = metaLink(ad.ad_id);
+    return `
     <div class="top3-card ${RK[i][0]}">
       <div class="rank-circle" style="background:${RK[i][1]};color:${RK[i][2]};">${i+1}</div>
       <div class="top3-body">
-        <div class="top3-name">${ad.ad_name}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+          <div class="top3-name" style="margin:0;">${ad.ad_name}</div>
+          ${link?`<a href="${link}" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;color:#185FA5;background:#E6F1FB;border:1px solid #85B7EB;border-radius:5px;padding:2px 8px;text-decoration:none;white-space:nowrap;">Ver en Meta ↗</a>`:''}
+        </div>
         <div class="top3-camp">${ad.campaign_name}</div>
         <div class="top3-metrics">
           <div class="t3m"><div class="t3m-label">Inversión</div><div class="t3m-val">${fmtCur(ad.spend)}</div></div>
