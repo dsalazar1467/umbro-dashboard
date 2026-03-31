@@ -294,6 +294,27 @@ function statusBadgeHTML(a) {
   return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;background:#FCEBEB;color:#791F1F;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#E24B4A;flex-shrink:0;display:inline-block;"></span>Finalizada</span>';
 }
 
+const CAMPAIGN_STOP_TIMES = {
+  "Equipamiento - Marzo - Mensajes":             "2026-04-16",
+  "Equipamiento - Enero - Trafico - 01/03":      "2026-03-01",
+  "Equipamiento - Enero - Mensajes - 01/03":     "2026-03-01",
+  "Equipamiento - Enero - Trafico - 15-02":      "2026-02-15",
+  "Equipamiento - Enero - Mensajes - 15_02":     "2026-02-15",
+  "Equipamiento - Enero - Mensajes":             "2026-01-15",
+  "Equipamiento - Enero - Trafico":              "2026-01-15",
+  "Equipamiento - Historias - 171225 - Trafico": "2025-12-23",
+  "Equipamiento - Historias - 161225 - Mensajes":"2025-12-23",
+  "Equipamiento - Dic 25 (0312)":                "2025-12-10",
+  "Equipamiento - Dic25":                        "2025-12-10",
+  "Equipamiento - Nov 25":                       "2025-12-10",
+};
+
+function getCampaignRunning(campaign_name) {
+  const stop = CAMPAIGN_STOP_TIMES[campaign_name];
+  if (!stop) return false;
+  return new Date(stop) >= new Date();
+}
+
 let ADS = [
   {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805,ad_id:"824241767094257",campaign_running:false},
   {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0,ad_id:"1061779699323535",campaign_running:false},
@@ -326,29 +347,11 @@ let ADS = [
   {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Anuncio 04 - Copia",spend:263.3,reach:2480,impressions:3573,clicks:37,ctr:1.035544,ad_id:"1686888742274146",campaign_running:true},
   {adset_name:"Equipamiento - Marzo - Mensajes",campaign_name:"Equipamiento - Marzo - Mensajes",ad_name:"Express_1803",spend:5052.05,reach:17236,impressions:58067,clicks:806,ctr:1.388052,ad_id:"946857157811405",campaign_running:true},
 ];
+// Recalculate campaign_running dynamically based on today's date
+ADS.forEach(a => { a.campaign_running = getCampaignRunning(a.campaign_name); });
 
 const RAW_PERIOD = { desde: '2025-12-01', hasta: '2026-03-31' };
 
-const CAMPAIGN_STOP_TIMES = {
-  "Equipamiento - Marzo - Mensajes":             "2026-04-16",
-  "Equipamiento - Enero - Trafico - 01/03":      "2026-03-01",
-  "Equipamiento - Enero - Mensajes - 01/03":     "2026-03-01",
-  "Equipamiento - Enero - Trafico - 15-02":      "2026-02-15",
-  "Equipamiento - Enero - Mensajes - 15_02":     "2026-02-15",
-  "Equipamiento - Enero - Mensajes":             "2026-01-15",
-  "Equipamiento - Enero - Trafico":              "2026-01-15",
-  "Equipamiento - Historias - 171225 - Trafico": "2025-12-23",
-  "Equipamiento - Historias - 161225 - Mensajes":"2025-12-23",
-  "Equipamiento - Dic 25 (0312)":                "2025-12-10",
-  "Equipamiento - Dic25":                        "2025-12-10",
-  "Equipamiento - Nov 25":                       "2025-12-10",
-};
-
-function getCampaignRunning(campaign_name) {
-  const stop = CAMPAIGN_STOP_TIMES[campaign_name];
-  if (!stop) return false;
-  return new Date(stop) >= new Date();
-}
 let activeFilter = { desde: '2025-12-01', hasta: '2026-03-31' };
 
 function daysBetween(a, b) {
