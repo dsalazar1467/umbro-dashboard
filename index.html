@@ -184,8 +184,8 @@
     <button onclick="applyDateFilter()" style="font-size:12px;font-weight:500;padding:4px 12px;border-radius:6px;border:none;background:var(--green);color:#fff;cursor:pointer;font-family:var(--font);">Aplicar</button>
     <div style="width:1px;height:16px;background:var(--gray-300);margin:0 4px;"></div>
     <button id="sf-all" onclick="setStatusFilter('all',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);cursor:pointer;font-family:var(--font);">Todos</button>
-    <button id="sf-active" onclick="setStatusFilter('active',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid #5DCAA5;background:#E1F5EE;color:#085041;cursor:pointer;font-family:var(--font);">&#9679; Activos</button>
-    <button id="sf-paused" onclick="setStatusFilter('paused',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);cursor:pointer;font-family:var(--font);">Pausados</button>
+    <button id="sf-active" onclick="setStatusFilter('active',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid #5DCAA5;background:#E1F5EE;color:#085041;cursor:pointer;font-family:var(--font);">● En curso</button>
+    <button id="sf-paused" onclick="setStatusFilter('paused',this)" style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:5px;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);cursor:pointer;font-family:var(--font);">● Finalizadas</button>
     <span id="filter-count" style="margin-left:auto;font-size:12px;color:var(--gray-500);"></span>
   </div>
   <div id="date-msg" style="font-size:12px;color:var(--green);margin-bottom:12px;min-height:16px;padding:0 2px;"></div>
@@ -278,45 +278,40 @@ function metaLink(id) { return id ? `https://www.facebook.com/ads/library/?id=${
 
 let statusFilter = 'all';
 
-function isActive(a) { return a.effective_status === 'ACTIVE'; }
-function statusLabel(s) {
-  if (s === 'ACTIVE') return { text: 'Activo', bg: '#E1F5EE', color: '#085041', dot: '#1D9E75' };
-  if (s === 'PAUSED') return { text: 'Pausado', bg: '#FAEEDA', color: '#633806', dot: '#EF9F27' };
-  if (s === 'ADSET_PAUSED') return { text: 'Conj. pausado', bg: '#FAEEDA', color: '#633806', dot: '#EF9F27' };
-  if (s === 'CAMPAIGN_PAUSED') return { text: 'Camp. pausada', bg: '#F1EFE8', color: '#444441', dot: '#888780' };
-  return { text: s||'—', bg: '#F1EFE8', color: '#444441', dot: '#888780' };
-}
-function statusBadgeHTML(s) {
-  const l = statusLabel(s);
-  return `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;background:${l.bg};color:${l.color};white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:${l.dot};flex-shrink:0;display:inline-block;"></span>${l.text}</span>`;
+function isActive(a) { return a.campaign_running === true; }
+function statusBadgeHTML(a) {
+  if (a.campaign_running) {
+    return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;background:#E1F5EE;color:#085041;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#1D9E75;flex-shrink:0;display:inline-block;"></span>En curso</span>';
+  }
+  return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;background:#FCEBEB;color:#791F1F;white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:#E24B4A;flex-shrink:0;display:inline-block;"></span>Finalizada</span>';
 }
 
 let ADS = [
-  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805,ad_id:"824241767094257",effective_status:"CAMPAIGN_PAUSED"},
-  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0,ad_id:"1061779699323535",effective_status:"CAMPAIGN_PAUSED"},
-  {adset_name:"Equipamiento - Dic25 - Express",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Express -",spend:160.16,reach:2100,impressions:2522,clicks:27,ctr:1.070579,ad_id:"890380840083467",effective_status:"CAMPAIGN_PAUSED"},
-  {adset_name:"Equipamiento - Dic 25",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Personalizados",spend:255.44,reach:3961,impressions:5414,clicks:68,ctr:1.256003,ad_id:"1242753717691127",effective_status:"CAMPAIGN_PAUSED"},
-  {adset_name:"Equipamiento - Dic 25- Personalizado",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Personalizados",spend:1611.43,reach:14547,impressions:25168,clicks:273,ctr:1.084711,ad_id:"874865488819224",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Dic 25- Express",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Express",spend:1325.02,reach:12662,impressions:20476,clicks:217,ctr:1.059777,ad_id:"841994615425777",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 01",spend:2110.74,reach:12365,impressions:23560,clicks:510,ctr:2.164686,ad_id:"878189844668150",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 02",spend:1515.32,reach:8529,impressions:16897,clicks:164,ctr:0.970586,ad_id:"889569287263877",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 01",spend:2637.31,reach:17018,impressions:27438,clicks:1946,ctr:7.092354,ad_id:"4288778088021207",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 02",spend:563.48,reach:5258,impressions:8106,clicks:128,ctr:1.579077,ad_id:"1556796569081411",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 01",spend:996.7,reach:26947,impressions:48301,clicks:1373,ctr:2.842591,ad_id:"2622255278148685",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 02",spend:1311.76,reach:36499,impressions:64452,clicks:1521,ctr:2.359896,ad_id:"1594617231443783",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 03",spend:122.72,reach:1979,impressions:3471,clicks:65,ctr:1.872659,ad_id:"2416645605441584",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 04",spend:191.08,reach:2817,impressions:4003,clicks:181,ctr:4.521609,ad_id:"771068898639246",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 01",spend:2102.03,reach:34330,impressions:74368,clicks:781,ctr:1.050183,ad_id:"890054013489264",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 02",spend:354.93,reach:4293,impressions:6882,clicks:77,ctr:1.118861,ad_id:"1855723218419087",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 03",spend:93.43,reach:1159,impressions:1586,clicks:16,ctr:1.008827,ad_id:"883265157584222",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 04",spend:64.08,reach:543,impressions:865,clicks:6,ctr:0.693642,ad_id:"746366348018342",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 04",spend:652.44,reach:4685,impressions:10240,clicks:83,ctr:0.810547,ad_id:"1543923283547147",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 03",spend:129.33,reach:1266,impressions:1972,clicks:10,ctr:0.507099,ad_id:"1268866271730816",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 02",spend:1679.02,reach:12839,impressions:28131,clicks:263,ctr:0.934912,ad_id:"889774226746938",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 01",spend:6663.95,reach:63100,impressions:180541,clicks:1602,ctr:0.887333,ad_id:"875345091752534",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918,ad_id:"1252736473577555",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766,ad_id:"2011509943039737",effective_status:"ACTIVE"},
-  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395,ad_id:"4272676882977264",effective_status:"ACTIVE"},
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Express",spend:806.78,reach:8660,impressions:12261,clicks:127,ctr:1.035805,ad_id:"824241767094257",campaign_running:false},
+  {adset_name:"Equipamiento - Nov 25",campaign_name:"Equipamiento - Nov 25",ad_name:"Equipamientos Personalizados",spend:0.01,reach:1,impressions:1,clicks:0,ctr:0,ad_id:"1061779699323535",campaign_running:false},
+  {adset_name:"Equipamiento - Dic25 - Express",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Express -",spend:160.16,reach:2100,impressions:2522,clicks:27,ctr:1.070579,ad_id:"890380840083467",campaign_running:false},
+  {adset_name:"Equipamiento - Dic 25",campaign_name:"Equipamiento - Dic25",ad_name:"Equipamientos Personalizados",spend:255.44,reach:3961,impressions:5414,clicks:68,ctr:1.256003,ad_id:"1242753717691127",campaign_running:false},
+  {adset_name:"Equipamiento - Dic 25- Personalizado",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Personalizados",spend:1611.43,reach:14547,impressions:25168,clicks:273,ctr:1.084711,ad_id:"874865488819224",campaign_running:false},
+  {adset_name:"Equipamiento - Dic 25- Express",campaign_name:"Equipamiento - Dic 25 (0312)",ad_name:"Equipamientos Express",spend:1325.02,reach:12662,impressions:20476,clicks:217,ctr:1.059777,ad_id:"841994615425777",campaign_running:false},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 01",spend:2110.74,reach:12365,impressions:23560,clicks:510,ctr:2.164686,ad_id:"878189844668150",campaign_running:false},
+  {adset_name:"Equipamiento - Historias - 161225 - Mensajes",campaign_name:"Equipamiento - Historias - 161225 - Mensajes",ad_name:"Video 02",spend:1515.32,reach:8529,impressions:16897,clicks:164,ctr:0.970586,ad_id:"889569287263877",campaign_running:false},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 01",spend:2637.31,reach:17018,impressions:27438,clicks:1946,ctr:7.092354,ad_id:"4288778088021207",campaign_running:false},
+  {adset_name:"Equipamiento - Historias - 171225 - Trafico",campaign_name:"Equipamiento - Historias - 171225 - Trafico",ad_name:"Video 02",spend:563.48,reach:5258,impressions:8106,clicks:128,ctr:1.579077,ad_id:"1556796569081411",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 01",spend:996.7,reach:26947,impressions:48301,clicks:1373,ctr:2.842591,ad_id:"2622255278148685",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 02",spend:1311.76,reach:36499,impressions:64452,clicks:1521,ctr:2.359896,ad_id:"1594617231443783",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 03",spend:122.72,reach:1979,impressions:3471,clicks:65,ctr:1.872659,ad_id:"2416645605441584",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico",ad_name:"Pauta 04",spend:191.08,reach:2817,impressions:4003,clicks:181,ctr:4.521609,ad_id:"771068898639246",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 01",spend:2102.03,reach:34330,impressions:74368,clicks:781,ctr:1.050183,ad_id:"890054013489264",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 02",spend:354.93,reach:4293,impressions:6882,clicks:77,ctr:1.118861,ad_id:"1855723218419087",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 03",spend:93.43,reach:1159,impressions:1586,clicks:16,ctr:1.008827,ad_id:"883265157584222",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes",ad_name:"Anuncio 04",spend:64.08,reach:543,impressions:865,clicks:6,ctr:0.693642,ad_id:"746366348018342",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 04",spend:652.44,reach:4685,impressions:10240,clicks:83,ctr:0.810547,ad_id:"1543923283547147",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 03",spend:129.33,reach:1266,impressions:1972,clicks:10,ctr:0.507099,ad_id:"1268866271730816",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 02",spend:1679.02,reach:12839,impressions:28131,clicks:263,ctr:0.934912,ad_id:"889774226746938",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Mensajes",campaign_name:"Equipamiento - Enero - Mensajes - 15_02",ad_name:"Anuncio 01",spend:6663.95,reach:63100,impressions:180541,clicks:1602,ctr:0.887333,ad_id:"875345091752534",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 04",spend:1337.36,reach:19295,impressions:49466,clicks:1432,ctr:2.894918,ad_id:"1252736473577555",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 03",spend:52.02,reach:1355,impressions:1880,clicks:51,ctr:2.712766,ad_id:"2011509943039737",campaign_running:false},
+  {adset_name:"Equipamiento - Enero - Trafico",campaign_name:"Equipamiento - Enero - Trafico - 15-02",ad_name:"Pauta 02",spend:1728.02,reach:33365,impressions:79009,clicks:1827,ctr:2.312395,ad_id:"4272676882977264",campaign_running:false},
 ];
 
 const RAW_PERIOD = { desde: '2025-12-01', hasta: '2026-03-30' };
@@ -427,7 +422,7 @@ function renderTable() {
           ${link?`<a href="${link}" target="_blank" style="flex-shrink:0;font-size:10px;color:#185FA5;background:#E6F1FB;border:1px solid #85B7EB;border-radius:4px;padding:1px 6px;text-decoration:none;white-space:nowrap;">↗ Meta</a>`:''}
         </div>
       </td>
-      <td>${statusBadgeHTML(a.effective_status)}</td>
+      <td>${statusBadgeHTML(a)}</td>
       <td><span class="camp-badge" title="${a.campaign_name}">${campShort(a.campaign_name).substring(0,22)}</span></td>
       <td>${fmtCur(a.spend)}</td>
       <td>${fmt(a.reach)}</td>
@@ -523,7 +518,7 @@ function renderTop3() {
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
           <div class="top3-camp" style="margin:0;">${ad.campaign_name}</div>
-          ${statusBadgeHTML(ad.effective_status)}
+          ${statusBadgeHTML(ad)}
         </div>
         <div class="top3-metrics">
           <div class="t3m"><div class="t3m-label">Inversión</div><div class="t3m-val">${fmtCur(ad.spend)}</div></div>
@@ -596,18 +591,24 @@ function applyData() {
     if(filtered.length === 0){ msg.style.color='var(--red)'; msg.textContent='No se encontraron anuncios con "equipamiento" en el período indicado.'; return; }
     const desde = document.getElementById('inp-desde').value || '2025-12-01';
     const hasta = document.getElementById('inp-hasta').value || '2026-03-30';
-    ADS = filtered.map(r=>({
-      adset_name: r.adset_name||'',
-      campaign_name: r.campaign_name||'',
-      ad_name: r.ad_name||'—',
-      spend: parseFloat(r.spend||0),
-      reach: parseInt(r.reach||0),
-      impressions: parseInt(r.impressions||0),
-      clicks: parseInt(r.clicks||0),
-      ctr: parseFloat(r.ctr||0),
-      date_start: r.date_start||desde,
-      date_stop: r.date_stop||hasta,
-    }));
+    const today = new Date();
+    ADS = filtered.map(r=>{
+      const stopDate = r.date_stop ? new Date(r.date_stop) : null;
+      const campaign_running = stopDate ? stopDate >= today : true;
+      return {
+        adset_name: r.adset_name||'',
+        campaign_name: r.campaign_name||'',
+        ad_name: r.ad_name||'—',
+        spend: parseFloat(r.spend||0),
+        reach: parseInt(r.reach||0),
+        impressions: parseInt(r.impressions||0),
+        clicks: parseInt(r.clicks||0),
+        ctr: parseFloat(r.ctr||0),
+        date_start: r.date_start||desde,
+        date_stop: r.date_stop||hasta,
+        campaign_running,
+      };
+    });
     RAW_PERIOD.desde = desde;
     RAW_PERIOD.hasta = hasta;
     activeFilter.desde = desde;
