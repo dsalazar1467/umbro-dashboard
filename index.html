@@ -677,6 +677,8 @@ function applyData() {
 
 function renderAll() {
   renderMetrics(); renderCharts(); renderTable();
+  const top3Screen = document.getElementById("screen-top3");
+  if (top3Screen && top3Screen.classList.contains("active")) renderTop3();
 }
 
 function exportXLSX() {
